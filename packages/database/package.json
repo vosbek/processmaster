@@ -1,0 +1,40 @@
+{
+  "name": "@processmaster/database",
+  "version": "1.0.0",
+  "description": "ProcessMaster Pro database schemas and migrations",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev:migrate": "ts-node src/migrate.ts",
+    "dev:rollback": "ts-node src/rollback.ts",
+    "dev:seed": "ts-node src/seed.ts",
+    "dev:status": "ts-node src/status.ts",
+    "dev:test-connection": "ts-node src/test-connection.ts",
+    "migrate": "npm run build && node dist/migrate.js",
+    "rollback": "npm run build && node dist/rollback.js",
+    "seed": "npm run build && node dist/seed.js",
+    "status": "npm run build && node dist/status.js",
+    "reset": "npm run rollback && npm run migrate && npm run seed",
+    "test-connection": "npm run build && node dist/test-connection.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.9",
+    "@types/node": "^20.10.0",
+    "@types/bcryptjs": "^2.4.6",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.1"
+  },
+  "keywords": [
+    "database",
+    "postgresql",
+    "migrations",
+    "schema"
+  ],
+  "author": "ProcessMaster Team",
+  "license": "MIT"
+}

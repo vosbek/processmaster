@@ -1,0 +1,40 @@
+{
+  "name": "@processmaster/chrome-extension",
+  "version": "1.0.0",
+  "description": "ProcessMaster Pro Chrome Extension for screen capture and process documentation",
+  "private": true,
+  "scripts": {
+    "build": "npm run clean && npm run copy",
+    "build:dev": "npm run clean && npm run copy && npm run watch",
+    "clean": "rm -rf dist",
+    "copy": "mkdir -p dist && cp -r src/* dist/ && cp manifest.json dist/ && cp -r icons dist/",
+    "watch": "npm run copy && chokidar 'src/**/*' 'manifest.json' 'icons/**/*' -c 'npm run copy'",
+    "package": "npm run build && cd dist && zip -r ../processmaster-chrome-extension.zip .",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix",
+    "validate": "web-ext lint --source-dir=dist"
+  },
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0",
+    "eslint": "^8.54.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "web-ext": "^7.8.0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "screen-capture",
+    "process-documentation",
+    "ai",
+    "automation"
+  ],
+  "author": "ProcessMaster Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/processmaster-pro.git",
+    "directory": "packages/extensions/chrome"
+  }
+}

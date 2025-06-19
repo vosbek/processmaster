@@ -1,0 +1,113 @@
+{
+  "name": "processmaster-pro",
+  "version": "1.0.0",
+  "description": "Enterprise-grade AI-powered process documentation platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:desktop": "cd apps/desktop && npm run dev",
+    "dev:mobile": "cd apps/mobile && npm run dev",
+    "build": "npm run build:web && npm run build:api && npm run build:desktop",
+    "build:web": "cd apps/web && npm run build",
+    "build:api": "cd apps/api && npm run build",
+    "build:desktop": "cd apps/desktop && npm run build",
+    "build:extensions": "cd packages/extensions && npm run build",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "jest --config=jest.config.js",
+    "test:integration": "jest --config=jest.integration.config.js",
+    "test:e2e": "playwright test",
+    "test:coverage": "jest --coverage",
+    "test:ai": "cd scripts && node test-ai-models.js",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "cd packages/database && npm run dev:migrate",
+    "db:rollback": "cd packages/database && npm run dev:rollback",
+    "db:seed": "cd packages/database && npm run dev:seed",
+    "db:status": "cd packages/database && npm run dev:status",
+    "db:reset": "npm run db:rollback && npm run db:migrate && npm run db:seed",
+    "db:test-connection": "cd packages/database && npm run dev:test-connection",
+    "deploy:dev": "cd infrastructure/aws && npm run deploy:dev",
+    "deploy:staging": "cd infrastructure/aws && npm run deploy:staging",
+    "deploy:prod": "cd infrastructure/aws && npm run deploy:prod",
+    "infra:deploy": "cd infrastructure/aws && npm run deploy",
+    "infra:update": "cd infrastructure/aws && npm run update",
+    "monitor:dev": "cd scripts && node monitor.js",
+    "logs:api": "cd apps/api && npm run logs",
+    "logs:web": "cd apps/web && npm run logs",
+    "debug:system": "cd scripts && node debug-system.js",
+    "debug:ai-performance": "cd scripts && node debug-ai.js",
+    "analyze:bundle": "cd apps/web && npm run analyze",
+    "electron:clear-cache": "cd apps/desktop && npm run clear-cache",
+    "electron:rebuild": "cd apps/desktop && npm run rebuild"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.54.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.0",
+    "playwright": "^1.40.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/processmaster-pro.git"
+  },
+  "keywords": [
+    "documentation",
+    "screen-recording",
+    "ai",
+    "enterprise",
+    "aws",
+    "claude",
+    "automation"
+  ],
+  "author": "ProcessMaster Team",
+  "license": "MIT",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/your-org/processmaster-pro/issues"
+  },
+  "homepage": "https://github.com/your-org/processmaster-pro#readme"
+}

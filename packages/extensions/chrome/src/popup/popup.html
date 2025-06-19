@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProcessMaster Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <img src="../../icons/icon-32.png" alt="ProcessMaster Pro" class="logo-icon">
+        <span class="logo-text">ProcessMaster Pro</span>
+      </div>
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Ready</span>
+      </div>
+    </div>
+
+    <!-- Authentication Section -->
+    <div class="auth-section" id="authSection">
+      <div class="auth-required" id="authRequired">
+        <div class="auth-message">
+          <h3>Sign in Required</h3>
+          <p>Please sign in to ProcessMaster Pro to start capturing.</p>
+          <button class="btn btn-primary" id="signInBtn">Sign In</button>
+        </div>
+      </div>
+
+      <div class="auth-success" id="authSuccess" style="display: none;">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">👤</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-email" id="userEmail">Loading...</div>
+          </div>
+        </div>
+        <button class="btn btn-link" id="signOutBtn">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- Recording Controls -->
+    <div class="recording-section" id="recordingSection" style="display: none;">
+      <div class="recording-status" id="recordingStatus">
+        <div class="recording-info">
+          <div class="recording-title" id="recordingTitle">Ready to Record</div>
+          <div class="recording-details" id="recordingDetails">
+            Click "Start Capture" to begin recording your process
+          </div>
+        </div>
+      </div>
+
+      <div class="recording-controls">
+        <button class="btn btn-primary btn-large" id="startCaptureBtn">
+          <span class="btn-icon">🎥</span>
+          Start Capture
+        </button>
+        <button class="btn btn-danger btn-large" id="stopCaptureBtn" style="display: none;">
+          <span class="btn-icon">⏹️</span>
+          Stop Capture
+        </button>
+      </div>
+
+      <div class="recording-stats" id="recordingStats" style="display: none;">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="screenshotCount">0</div>
+            <div class="stat-label">Screenshots</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="interactionCount">0</div>
+            <div class="stat-label">Interactions</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="duration">00:00</div>
+            <div class="stat-label">Duration</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions" id="quickActions" style="display: none;">
+      <div class="action-item">
+        <button class="btn btn-outline" id="viewGuidesBtn">
+          <span class="btn-icon">📚</span>
+          View Guides
+        </button>
+      </div>
+      <div class="action-item">
+        <button class="btn btn-outline" id="settingsBtn">
+          <span class="btn-icon">⚙️</span>
+          Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="shortcuts">
+        <div class="shortcut-item">
+          <kbd>Ctrl+Shift+S</kbd> Start
+        </div>
+        <div class="shortcut-item">
+          <kbd>Ctrl+Shift+E</kbd> Stop
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">Loading...</div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage" style="display: none;">
+      <div class="error-content">
+        <div class="error-icon">⚠️</div>
+        <div class="error-text" id="errorText">An error occurred</div>
+        <button class="btn btn-small" id="dismissErrorBtn">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
