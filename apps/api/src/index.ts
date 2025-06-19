@@ -11,6 +11,7 @@ import { authRoutes } from './routes/auth';
 import { guideRoutes } from './routes/guides';
 import { captureRoutes } from './routes/capture';
 import { aiRoutes } from './routes/ai';
+import uploadRoutes from './routes/upload';
 
 // Load environment variables
 dotenv.config();
@@ -72,6 +73,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/guides', guideRoutes);
 app.use('/api/v1/capture', captureRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/upload', uploadRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

@@ -1,0 +1,352 @@
+erDiagram
+    %% Core User and Team Management
+    USERS ||--o{ USER_TEAMS : belongs_to
+    TEAMS ||--o{ USER_TEAMS : has_members
+    USERS ||--o{ GUIDES : creates
+    TEAMS ||--o{ GUIDES : contains
+    USERS ||--o{ CAPTURE_SESSIONS : owns
+    
+    %% Guide Structure
+    GUIDES ||--o{ GUIDE_STEPS : contains
+    GUIDES ||--o{ GUIDE_COLLABORATORS : shared_with
+    GUIDES ||--o{ GUIDE_VIEWS : viewed_by
+    GUIDES ||--o{ GUIDE_EXPORTS : exported_as
+    GUIDES ||--o{ GUIDE_COMMENTS : has_comments
+    
+    %% Step Details
+    GUIDE_STEPS ||--o{ STEP_ANNOTATIONS : annotated_with
+    GUIDE_STEPS ||--o{ STEP_INTERACTIONS : has_interactions
+    
+    %% Capture System
+    CAPTURE_SESSIONS ||--o{ CAPTURE_INTERACTIONS : records
+    CAPTURE_SESSIONS ||--o{ CAPTURE_SCREENSHOTS : contains
+    CAPTURE_SESSIONS ||--o{ AI_PROCESSING_JOBS : generates
+    
+    %% File Management
+    FILES ||--o{ CAPTURE_SCREENSHOTS : stores
+    FILES ||--o{ GUIDE_STEPS : attached_to
+    FILES ||--o{ STEP_ANNOTATIONS : references
+    
+    %% AI and Processing
+    AI_PROCESSING_JOBS ||--o{ GUIDE_STEPS : produces
+    AI_PROCESSING_JOBS ||--o{ AUDIT_LOGS : logs
+    
+    %% Authentication and Security
+    USERS ||--o{ API_KEYS : owns
+    USERS ||--o{ USER_SESSIONS : has_sessions
+    USERS ||--o{ AUDIT_LOGS : performs_actions
+    
+    %% Notifications and Preferences
+    USERS ||--o{ USER_PREFERENCES : has_preferences
+    USERS ||--o{ NOTIFICATIONS : receives
+    TEAMS ||--o{ TEAM_SETTINGS : configured_with
+    
+    USERS {
+        uuid id PK
+        string email UK
+        string firstName
+        string lastName
+        string passwordHash
+        enum role "admin, user, viewer"
+        string jobTitle
+        string company
+        text bio
+        string profileImageUrl
+        jsonb preferences
+        jsonb notificationSettings
+        timestamp createdAt
+        timestamp updatedAt
+        timestamp lastLoginAt
+        timestamp emailVerifiedAt
+        boolean isActive
+        string ldapDn
+        string oauthProvider
+        string oauthId
+    }
+    
+    TEAMS {
+        uuid id PK
+        string name
+        text description
+        string slug UK
+        jsonb settings
+        jsonb branding
+        enum subscription "free, pro, enterprise"
+        timestamp createdAt
+        timestamp updatedAt
+        uuid ownerId FK
+        boolean isActive
+    }
+    
+    USER_TEAMS {
+        uuid id PK
+        uuid userId FK
+        uuid teamId FK
+        enum role "owner, admin, member, viewer"
+        timestamp joinedAt
+        timestamp invitedAt
+        enum status "pending, active, inactive"
+        uuid invitedBy FK
+    }
+    
+    GUIDES {
+        uuid id PK
+        string title
+        text description
+        enum status "draft, published, archived"
+        enum visibility "public, private, team"
+        jsonb metadata
+        jsonb settings
+        string category
+        text[] tags
+        integer stepCount
+        integer viewCount
+        decimal averageRating
+        uuid authorId FK
+        uuid teamId FK
+        uuid captureSessionId FK
+        timestamp createdAt
+        timestamp updatedAt
+        timestamp publishedAt
+        boolean isTemplate
+        boolean isFeatured
+    }
+    
+    GUIDE_STEPS {
+        uuid id PK
+        uuid guideId FK
+        string title
+        text description
+        text content
+        integer stepOrder
+        jsonb metadata
+        string screenshotUrl
+        jsonb annotations
+        jsonb interactions
+        enum stepType "action, info, warning, tip"
+        timestamp createdAt
+        timestamp updatedAt
+        boolean isOptional
+    }
+    
+    STEP_ANNOTATIONS {
+        uuid id PK
+        uuid stepId FK
+        enum type "arrow, highlight, text, blur, callout"
+        jsonb coordinates
+        jsonb properties
+        string text
+        string color
+        integer zIndex
+        timestamp createdAt
+        uuid createdBy FK
+    }
+    
+    CAPTURE_SESSIONS {
+        uuid id PK
+        string title
+        text description
+        enum status "recording, processing, completed, failed"
+        jsonb settings
+        jsonb metadata
+        string url
+        timestamp startedAt
+        timestamp completedAt
+        integer screenshotCount
+        integer interactionCount
+        uuid userId FK
+        uuid teamId FK
+        boolean isProcessed
+    }
+    
+    CAPTURE_INTERACTIONS {
+        uuid id PK
+        uuid sessionId FK
+        enum type "click, scroll, keyboard, hover, form, navigation"
+        timestamp timestamp
+        integer x
+        integer y
+        string element
+        text value
+        jsonb metadata
+        string screenshotUrl
+        integer sequenceNumber
+    }
+    
+    CAPTURE_SCREENSHOTS {
+        uuid id PK
+        uuid sessionId FK
+        uuid fileId FK
+        string url
+        integer width
+        integer height
+        timestamp capturedAt
+        integer sequenceNumber
+        jsonb metadata
+        boolean isKeyframe
+    }
+    
+    FILES {
+        uuid id PK
+        string originalName
+        string fileName
+        string mimeType
+        bigint fileSize
+        string s3Key
+        string s3Bucket
+        string cdnUrl
+        enum purpose "profile-image, guide-screenshot, capture-video, document"
+        jsonb metadata
+        timestamp createdAt
+        uuid uploadedBy FK
+        boolean isPublic
+    }
+    
+    AI_PROCESSING_JOBS {
+        uuid id PK
+        uuid sessionId FK
+        enum type "guide-generation, step-description, title-suggestion, content-enhancement"
+        enum status "pending, processing, completed, failed"
+        jsonb input
+        jsonb output
+        text errorMessage
+        timestamp startedAt
+        timestamp completedAt
+        integer retryCount
+        decimal cost
+        string aiModel
+        jsonb metadata
+    }
+    
+    GUIDE_COLLABORATORS {
+        uuid id PK
+        uuid guideId FK
+        uuid userId FK
+        enum permission "read, write, admin"
+        timestamp addedAt
+        uuid addedBy FK
+        timestamp lastAccessedAt
+    }
+    
+    GUIDE_VIEWS {
+        uuid id PK
+        uuid guideId FK
+        uuid userId FK
+        timestamp viewedAt
+        integer duration
+        boolean completed
+        jsonb metadata
+        string ipAddress
+        string userAgent
+    }
+    
+    GUIDE_EXPORTS {
+        uuid id PK
+        uuid guideId FK
+        uuid userId FK
+        enum format "pdf, html, video, docx, pptx"
+        string downloadUrl
+        timestamp createdAt
+        timestamp expiresAt
+        jsonb settings
+        enum status "pending, completed, failed"
+    }
+    
+    GUIDE_COMMENTS {
+        uuid id PK
+        uuid guideId FK
+        uuid stepId FK
+        uuid userId FK
+        text content
+        enum type "comment, suggestion, issue"
+        uuid parentId FK
+        timestamp createdAt
+        timestamp updatedAt
+        boolean isResolved
+        jsonb metadata
+    }
+    
+    USER_PREFERENCES {
+        uuid id PK
+        uuid userId FK
+        enum theme "light, dark, system"
+        string language
+        string timezone
+        string dateFormat
+        enum timeFormat "12h, 24h"
+        enum defaultGuideVisibility "public, private"
+        boolean autoSaveDrafts
+        boolean compactView
+        boolean showTips
+        boolean analytics
+        jsonb customSettings
+        timestamp updatedAt
+    }
+    
+    NOTIFICATIONS {
+        uuid id PK
+        uuid userId FK
+        string title
+        text message
+        enum type "guide_published, comment_added, team_invite, system_update"
+        jsonb data
+        boolean isRead
+        timestamp createdAt
+        timestamp readAt
+        enum priority "low, normal, high"
+    }
+    
+    API_KEYS {
+        uuid id PK
+        uuid userId FK
+        uuid teamId FK
+        string name
+        string keyHash
+        string keyPrefix
+        text[] scopes
+        timestamp createdAt
+        timestamp lastUsedAt
+        timestamp expiresAt
+        boolean isActive
+        jsonb metadata
+    }
+    
+    USER_SESSIONS {
+        uuid id PK
+        uuid userId FK
+        string sessionToken
+        timestamp createdAt
+        timestamp expiresAt
+        string ipAddress
+        string userAgent
+        jsonb metadata
+        boolean isActive
+    }
+    
+    AUDIT_LOGS {
+        uuid id PK
+        uuid userId FK
+        uuid teamId FK
+        string action
+        string resourceType
+        uuid resourceId
+        jsonb oldValues
+        jsonb newValues
+        string ipAddress
+        string userAgent
+        timestamp createdAt
+        enum severity "info, warning, error"
+        jsonb metadata
+    }
+    
+    TEAM_SETTINGS {
+        uuid id PK
+        uuid teamId FK
+        jsonb brandingSettings
+        jsonb securitySettings
+        jsonb integrationSettings
+        jsonb notificationSettings
+        jsonb exportSettings
+        timestamp updatedAt
+        uuid updatedBy FK
+    }

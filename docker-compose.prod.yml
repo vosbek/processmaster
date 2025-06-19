@@ -1,0 +1,72 @@
+# Docker Compose for Production
+# This file defines the production configuration
+
+version: '3.8'
+
+services:
+  db:
+    restart: always
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: md5
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    # Don't expose port in production
+    # ports: []
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    restart: always
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+    # Remove volume mounts for production
+    # volumes: []
+    command: ["npm", "start"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    restart: always
+    environment:
+      NODE_ENV: production
+    # Remove volume mounts for production
+    # volumes: []
+    command: ["npm", "start"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    restart: always
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redis_data_prod:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nginx:
+    restart: always
+    profiles: []  # Always run in production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data_prod:
+    driver: local
+  redis_data_prod:
+    driver: local

@@ -1,0 +1,183 @@
+graph TB
+    subgraph "Global Infrastructure"
+        subgraph "DNS & CDN"
+            ROUTE53[Route 53<br/>DNS Management]
+            CLOUDFRONT[CloudFront<br/>Global CDN]
+            WAF[AWS WAF<br/>DDoS Protection]
+        end
+    end
+    
+    subgraph "US-East-1 (Primary Region)"
+        subgraph "Public Subnets"
+            ALB[Application Load Balancer<br/>Multi-AZ]
+            NAT1[NAT Gateway<br/>AZ-1a]
+            NAT2[NAT Gateway<br/>AZ-1b]
+        end
+        
+        subgraph "Private Subnets - App Tier"
+            subgraph "ECS Cluster"
+                API_SERVICE[API Service<br/>ECS Fargate]
+                WEB_SERVICE[Web Service<br/>ECS Fargate]
+                WORKER_SERVICE[Worker Service<br/>ECS Fargate]
+            end
+            
+            subgraph "Container Registry"
+                ECR[ECR Repository<br/>Docker Images]
+            end
+        end
+        
+        subgraph "Private Subnets - Data Tier"
+            subgraph "Database"
+                RDS_PRIMARY[RDS PostgreSQL<br/>Primary Instance]
+                RDS_REPLICA[RDS PostgreSQL<br/>Read Replica]
+            end
+            
+            subgraph "Cache"
+                REDIS_PRIMARY[ElastiCache Redis<br/>Primary]
+                REDIS_REPLICA[ElastiCache Redis<br/>Replica]
+            end
+            
+            subgraph "Search"
+                ES_MASTER[Elasticsearch<br/>Master Node]
+                ES_DATA[Elasticsearch<br/>Data Nodes]
+            end
+        end
+        
+        subgraph "Storage"
+            S3_MAIN[S3 Bucket<br/>Primary Storage]
+            S3_BACKUP[S3 Bucket<br/>Backups]
+        end
+        
+        subgraph "AI & ML"
+            BEDROCK[AWS Bedrock<br/>Claude 3.5 Sonnet v2]
+            LAMBDA[Lambda Functions<br/>Image Processing]
+        end
+        
+        subgraph "Monitoring"
+            CLOUDWATCH[CloudWatch<br/>Logs & Metrics]
+            XRAY[X-Ray<br/>Distributed Tracing]
+        end
+        
+        subgraph "Security & Secrets"
+            SECRETS[Secrets Manager<br/>Credentials]
+            KMS[KMS<br/>Encryption Keys]
+            IAM[IAM<br/>Access Control]
+        end
+    end
+    
+    subgraph "US-West-2 (DR Region)"
+        subgraph "Disaster Recovery"
+            RDS_DR[RDS PostgreSQL<br/>Cross-Region Replica]
+            S3_DR[S3 Bucket<br/>Cross-Region Replication]
+            BACKUP_DR[Automated Backups<br/>Cross-Region]
+        end
+    end
+    
+    subgraph "CI/CD Pipeline"
+        subgraph "Source Control"
+            GITHUB[GitHub<br/>Source Repository]
+        end
+        
+        subgraph "Build & Deploy"
+            GITHUB_ACTIONS[GitHub Actions<br/>CI/CD Pipeline]
+            TERRAFORM[Terraform<br/>Infrastructure as Code]
+        end
+    end
+    
+    subgraph "External Services"
+        subgraph "Monitoring & Alerting"
+            DATADOG[DataDog<br/>APM & Monitoring]
+            SENTRY[Sentry<br/>Error Tracking]
+            PAGERDUTY[PagerDuty<br/>Incident Management]
+        end
+        
+        subgraph "Communication"
+            SES[AWS SES<br/>Email Service]
+            SNS[AWS SNS<br/>Notifications]
+        end
+    end
+    
+    %% Traffic Flow
+    ROUTE53 --> CLOUDFRONT
+    CLOUDFRONT --> WAF
+    WAF --> ALB
+    
+    %% Load Balancer to Services
+    ALB --> API_SERVICE
+    ALB --> WEB_SERVICE
+    
+    %% Service Dependencies
+    API_SERVICE --> RDS_PRIMARY
+    API_SERVICE --> REDIS_PRIMARY
+    API_SERVICE --> S3_MAIN
+    API_SERVICE --> BEDROCK
+    API_SERVICE --> ES_MASTER
+    
+    WORKER_SERVICE --> RDS_PRIMARY
+    WORKER_SERVICE --> S3_MAIN
+    WORKER_SERVICE --> BEDROCK
+    WORKER_SERVICE --> LAMBDA
+    
+    %% Data Replication
+    RDS_PRIMARY --> RDS_REPLICA
+    RDS_PRIMARY --> RDS_DR
+    REDIS_PRIMARY --> REDIS_REPLICA
+    S3_MAIN --> S3_DR
+    S3_MAIN --> S3_BACKUP
+    
+    %% Container Management
+    ECR --> API_SERVICE
+    ECR --> WEB_SERVICE
+    ECR --> WORKER_SERVICE
+    
+    %% Security
+    SECRETS --> API_SERVICE
+    SECRETS --> WORKER_SERVICE
+    KMS --> RDS_PRIMARY
+    KMS --> S3_MAIN
+    IAM --> API_SERVICE
+    
+    %% Monitoring
+    API_SERVICE --> CLOUDWATCH
+    WEB_SERVICE --> CLOUDWATCH
+    WORKER_SERVICE --> CLOUDWATCH
+    API_SERVICE --> XRAY
+    API_SERVICE --> DATADOG
+    WEB_SERVICE --> SENTRY
+    
+    %% CI/CD
+    GITHUB --> GITHUB_ACTIONS
+    GITHUB_ACTIONS --> ECR
+    GITHUB_ACTIONS --> TERRAFORM
+    TERRAFORM --> API_SERVICE
+    TERRAFORM --> WEB_SERVICE
+    
+    %% External Services
+    API_SERVICE --> SES
+    API_SERVICE --> SNS
+    CLOUDWATCH --> PAGERDUTY
+    
+    %% Network Gateway
+    API_SERVICE --> NAT1
+    WORKER_SERVICE --> NAT2
+    
+    %% Styling
+    classDef global fill:#e3f2fd
+    classDef network fill:#f3e5f5
+    classDef compute fill:#e8f5e8
+    classDef data fill:#fff3e0
+    classDef security fill:#ffebee
+    classDef monitoring fill:#f1f8e9
+    classDef external fill:#fafafa
+    classDef dr fill:#fce4ec
+    classDef cicd fill:#e0f2f1
+    
+    class ROUTE53,CLOUDFRONT,WAF global
+    class ALB,NAT1,NAT2 network
+    class API_SERVICE,WEB_SERVICE,WORKER_SERVICE,ECR,BEDROCK,LAMBDA compute
+    class RDS_PRIMARY,RDS_REPLICA,REDIS_PRIMARY,REDIS_REPLICA,S3_MAIN,S3_BACKUP,ES_MASTER,ES_DATA data
+    class SECRETS,KMS,IAM security
+    class CLOUDWATCH,XRAY,DATADOG,SENTRY,PAGERDUTY monitoring
+    class SES,SNS external
+    class RDS_DR,S3_DR,BACKUP_DR dr
+    class GITHUB,GITHUB_ACTIONS,TERRAFORM cicd

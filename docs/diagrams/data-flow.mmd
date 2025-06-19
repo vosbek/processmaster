@@ -1,0 +1,80 @@
+sequenceDiagram
+    participant U as User
+    participant E as Chrome Extension
+    participant W as Web App
+    participant API as API Server
+    participant Q as Job Queue
+    participant AI as AWS Bedrock
+    participant S3 as S3 Storage
+    participant DB as PostgreSQL
+    participant WS as WebSocket
+    
+    Note over U,DB: Screen Capture & Guide Generation Flow
+    
+    %% Start capture session
+    U->>E: Click "Start Capture"
+    E->>API: POST /api/capture/start
+    API->>DB: Create capture session
+    API->>S3: Generate presigned URLs
+    API-->>E: Session ID & upload URLs
+    E->>WS: Subscribe to session updates
+    
+    %% Capture process
+    loop Screen Capture
+        E->>E: Capture screenshot
+        E->>S3: Upload screenshot (direct)
+        E->>API: POST /api/capture/interaction
+        API->>DB: Store interaction data
+        API->>WS: Broadcast progress update
+        WS-->>E: Real-time progress
+    end
+    
+    %% Stop capture and process
+    U->>E: Click "Stop Capture"
+    E->>API: POST /api/capture/stop
+    API->>DB: Update session status
+    API->>Q: Queue AI processing job
+    API-->>E: Processing started
+    
+    %% AI Processing
+    Q->>AI: Process screenshots & interactions
+    AI-->>Q: Generated guide content
+    Q->>DB: Store guide data
+    Q->>WS: Broadcast completion
+    WS-->>E: Guide ready notification
+    
+    %% View generated guide
+    U->>E: View guide
+    E->>W: Open guide in web app
+    W->>API: GET /api/guides/:id
+    API->>DB: Fetch guide data
+    API-->>W: Guide content & metadata
+    W-->>U: Display guide
+    
+    Note over U,DB: Real-time Collaboration Flow
+    
+    %% User starts editing
+    U->>W: Edit guide
+    W->>API: PUT /api/guides/:id/lock
+    API->>DB: Create edit lock
+    API->>WS: Broadcast edit start
+    WS-->>W: Show other users editing status
+    
+    %% Real-time editing
+    loop Live Editing
+        U->>W: Make changes
+        W->>WS: Send change delta
+        WS->>API: Validate and apply changes
+        API->>DB: Store incremental changes
+        WS-->>W: Broadcast changes to other users
+        W-->>U: Show live updates
+    end
+    
+    %% Save and unlock
+    U->>W: Save changes
+    W->>API: POST /api/guides/:id/save
+    API->>DB: Commit all changes
+    API->>WS: Broadcast save complete
+    API->>API: Release edit lock
+    API-->>W: Save confirmed
+    WS-->>W: Update editing status for all users

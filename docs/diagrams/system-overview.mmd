@@ -1,0 +1,114 @@
+graph TB
+    subgraph "Client Layer"
+        WEB[Web Application<br/>Next.js 14 + TypeScript]
+        EXT[Chrome Extension<br/>Screen Capture]
+        DESKTOP[Desktop App<br/>Electron]
+        MOBILE[Mobile Apps<br/>React Native]
+    end
+    
+    subgraph "Load Balancing & CDN"
+        ALB[Application Load Balancer<br/>AWS ALB]
+        CDN[CloudFront CDN<br/>Global Distribution]
+        WAF[Web Application Firewall<br/>AWS WAF]
+    end
+    
+    subgraph "Application Services"
+        API[API Server<br/>Node.js + Express]
+        WS[WebSocket Server<br/>Real-time Features]
+        WORKER[Background Workers<br/>Job Processing]
+    end
+    
+    subgraph "AI & ML Services"
+        BEDROCK[AWS Bedrock<br/>Claude 3.5 Sonnet v2]
+        LAMBDA[Processing Lambda<br/>Image Analysis]
+        ML_PIPELINE[ML Pipeline<br/>Custom Models]
+    end
+    
+    subgraph "Data Layer"
+        RDS[(PostgreSQL<br/>Primary Database)]
+        REDIS[(Redis<br/>Cache & Sessions)]
+        S3[(S3 Storage<br/>Files & Assets)]
+        SEARCH[Elasticsearch<br/>Search Engine]
+    end
+    
+    subgraph "Authentication & Security"
+        LDAP[LDAP/AD<br/>Enterprise Auth]
+        OAUTH[OAuth2 Providers<br/>SSO]
+        JWT[JWT Service<br/>Token Management]
+        SECRETS[AWS Secrets Manager<br/>Credential Storage]
+    end
+    
+    subgraph "Monitoring & Logging"
+        CLOUDWATCH[CloudWatch<br/>Logs & Metrics]
+        SENTRY[Sentry<br/>Error Tracking]
+        DATADOG[DataDog<br/>APM & Monitoring]
+        ALERTS[Alert Manager<br/>Notifications]
+    end
+    
+    subgraph "External Integrations"
+        SLACK[Slack API<br/>Team Notifications]
+        TEAMS[Microsoft Teams<br/>Integration]
+        CONFLUENCE[Confluence<br/>Documentation Sync]
+        GITHUB[GitHub<br/>Code Documentation]
+    end
+    
+    %% Client connections
+    WEB --> WAF
+    EXT --> WAF
+    DESKTOP --> WAF
+    MOBILE --> WAF
+    
+    %% Load balancing
+    WAF --> ALB
+    ALB --> API
+    ALB --> WS
+    CDN --> S3
+    
+    %% API connections
+    API --> RDS
+    API --> REDIS
+    API --> S3
+    API --> BEDROCK
+    API --> LAMBDA
+    API --> SEARCH
+    API --> JWT
+    
+    %% Background processing
+    WORKER --> RDS
+    WORKER --> S3
+    WORKER --> BEDROCK
+    WORKER --> ML_PIPELINE
+    
+    %% Authentication
+    JWT --> LDAP
+    JWT --> OAUTH
+    JWT --> SECRETS
+    
+    %% Monitoring
+    API --> CLOUDWATCH
+    WEB --> SENTRY
+    API --> DATADOG
+    DATADOG --> ALERTS
+    
+    %% External integrations
+    API --> SLACK
+    API --> TEAMS
+    API --> CONFLUENCE
+    API --> GITHUB
+    
+    %% Styling
+    classDef client fill:#e1f5fe
+    classDef infrastructure fill:#f3e5f5
+    classDef application fill:#e8f5e8
+    classDef data fill:#fff3e0
+    classDef security fill:#ffebee
+    classDef monitoring fill:#f1f8e9
+    classDef external fill:#fafafa
+    
+    class WEB,EXT,DESKTOP,MOBILE client
+    class ALB,CDN,WAF infrastructure
+    class API,WS,WORKER,BEDROCK,LAMBDA,ML_PIPELINE application
+    class RDS,REDIS,S3,SEARCH data
+    class LDAP,OAUTH,JWT,SECRETS security
+    class CLOUDWATCH,SENTRY,DATADOG,ALERTS monitoring
+    class SLACK,TEAMS,CONFLUENCE,GITHUB external

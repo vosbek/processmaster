@@ -1,0 +1,42 @@
+# Docker Compose Override for Development
+# This file provides development-specific overrides
+
+version: '3.8'
+
+services:
+  db:
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust  # For development only
+    volumes:
+      - ./database/backups:/backups  # Mount backup directory
+    ports:
+      - "5432:5432"  # Expose database port for external tools
+
+  api:
+    environment:
+      NODE_ENV: development
+      DEBUG: "processmaster:*"
+      LOG_LEVEL: debug
+    volumes:
+      - ./apps/api:/app
+      - ./uploads:/app/uploads
+      - /app/node_modules  # Anonymous volume for node_modules
+    command: ["npm", "run", "dev"]
+    stdin_open: true
+    tty: true
+
+  web:
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules  # Anonymous volume for node_modules
+      - /app/.next  # Anonymous volume for .next
+    command: ["npm", "run", "dev"]
+    stdin_open: true
+    tty: true
+
+  redis:
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "dev_redis_password"]
+    volumes:
+      - ./redis/data:/data
